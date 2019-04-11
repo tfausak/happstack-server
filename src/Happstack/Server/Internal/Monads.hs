@@ -16,6 +16,7 @@ import Control.Monad.Error                       ( ErrorT(ErrorT), runErrorT
                                                  , Error, MonadError, throwError
                                                  , catchError, mapErrorT
                                                  )
+import qualified Control.Monad.Fail as Fail
 import Control.Monad.Reader                      ( ReaderT(ReaderT), runReaderT
                                                  , MonadReader, ask, local, mapReaderT
                                                  )
@@ -70,7 +71,7 @@ type ServerPart a = ServerPartT IO a
 --
 -- see also: 'simpleHTTP', 'ServerMonad', 'FilterMonad', 'WebMonad', and 'HasRqData'
 newtype ServerPartT m a = ServerPartT { unServerPartT :: ReaderT Request (WebT m) a }
-    deriving (Monad, MonadPlus, Functor)
+    deriving (Monad, MonadPlus, Functor, Fail.MonadFail)
 
 instance MonadCatch m => MonadCatch (ServerPartT m) where
     catch action handle = ServerPartT $ catch (unServerPartT action) (unServerPartT . handle)
@@ -390,7 +391,7 @@ instance (Monad m) => FilterMonad a (FilterT a m) where
 
 -- | The basic 'Response' building object.
 newtype WebT m a = WebT { unWebT :: ErrorT Response (FilterT (Response) (MaybeT m)) a }
-    deriving (Functor)
+    deriving (Functor, Fail.MonadFail)
 
 instance MonadCatch m => MonadCatch (WebT m) where
     catch action handle = WebT $ catch (unWebT action) (unWebT . handle)
