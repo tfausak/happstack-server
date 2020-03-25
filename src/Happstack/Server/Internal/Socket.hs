@@ -66,18 +66,18 @@ sockAddrToPeer addr =
                           [VarP (mkName "p"),VarP (mkName "ha")])
                          (NormalB
                             (TupE
-                                [(AppE (VarE (mkName "showHostAddress"))
+                                [ Just (AppE (VarE (mkName "showHostAddress"))
                                     (VarE (mkName "ha")))
-                                , VarE (mkName "p")
+                                , Just (VarE (mkName "p"))
                                 ])) []
                     , Match (ConP (mkName "S.SockAddrInet6")
                             [VarP (mkName "p"),WildP,VarP (mkName "ha"),WildP])
                          (NormalB
                             (TupE
-                                [ (AppE
+                                [ Just (AppE
                                     (VarE (mkName "showHostAddress6"))
                                          (VarE (mkName "ha")))
-                                , VarE (mkName "p")
+                                , Just (VarE (mkName "p"))
                                 ])) []
                     , Match WildP
                         (NormalB (AppE (VarE (mkName "error"))
